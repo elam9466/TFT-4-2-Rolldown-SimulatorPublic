@@ -33,3 +33,20 @@ def shop(currentPool, odds):
             cards.append("-----")
     return cards
 
+def buyChamp(champ, pool, bench):
+    if champ not in pool or pool[champ][1] <= 0:
+        print(f"  Can't buy {champ}! Not in pool.")
+        return False, pool, bench
+    
+    if len(bench) >= 9:
+        print("  Bench is full!")
+        return False, pool, bench
+    
+    cost, remaining = pool[champ]
+    pool[champ] = (cost, remaining -1)
+    bench.append(champ)
+    return True, pool, bench
+
+
+
+
