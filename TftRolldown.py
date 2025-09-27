@@ -1,6 +1,6 @@
 import random
 import os
-
+from collections import Counter
 Champs = {
     "Aatrox": (1,30) , "Ezreal": (1,30),"Garen": (1,30),"Gnar": (1,30),"Kalista": (1,30),"Kayle": (1,30),"Kennen": (1,30),"Lucian": (1,30),"Malphite": (1,30),"Naafiri": (1,30),"Rell": (1,30),"Sivir": (1,30),"Syndra": (1,30),"Zac": (1,30),
     
@@ -45,8 +45,73 @@ def buyChamp(champ, pool, bench):
     cost, remaining = pool[champ]
     pool[champ] = (cost, remaining -1)
     bench.append(champ)
+
+    bench = autoStarUp(bench)
     return True, pool, bench
 
+def display_shop(cards):
+    print("\nShop:")
+    for i, card in enumerate(cards, start=1):
+        print(f"  {i}. {card}")
+    print()
+
+def display_bench(bench):
+    print("Bench:")
+    if bench:
+        for i, champ in enumerate(bench, start=1):
+            print(f"  {i}. {champ}")
+    else:
+        print("  (empty)")
+    print()
+
+def starUp(bench):
+    
+    champ_counts = Counter(bench)
+    nextStar = False
+    
+    for champ_name, count in champ_counts.items():
+        if "***" in champ_name:  
+            continue
+            
+        base_name = champ_name.replace(" **", "")  
+        two_star_name = f"{base_name} **"
+        
+        two_star_count = bench.count(two_star_name)
+        
+        if two_star_count >= 3:
+            for _ in range(3):
+                bench.remove(two_star_name)
+            
+            three_star_name = f"{base_name} ***"
+            bench.append(three_star_name)
+            print(f"{base_name} into 3-star {base_name}")
+            nextStar = True
+    
+    champ_counts = Counter([champ.replace(" **", "").replace(" ***", "") for champ in bench])
+    
+    for base_name, count in champ_counts.items():
+        if count >= 3:
+            one_star_count = sum(1 for champ in bench if champ == base_name)
+            
+            if one_star_count >= 3:
+                for _ in range(3):
+                    bench.remove(base_name)
+                
+                two_star_name = f"{base_name} **"
+                bench.append(two_star_name)
+                print(f"{base_name} into 2-star {base_name}")
+                any_combinations = True
+    
+    if nextStar:
+        bench, multipleStarup = starUp(bench)
+        nextStar = nextStar or multipleStarup
+    
+    return bench, nextStar
+
+
+def autoStarUp(bench):
+    bench, autoStar = starUp(bench)
+    return bench
 
 
 
